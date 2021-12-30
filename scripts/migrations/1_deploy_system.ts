@@ -91,6 +91,10 @@ async function rebuildCaches() {
   }
 }
 
+function getAddresss(contractName) {
+  return deployedContracts[contractName].instance.address;
+}
+
 function addressOf(contract) {
   if (!contract.address) new Error("no address")
   return contract.address
@@ -98,7 +102,7 @@ function addressOf(contract) {
 
 async function main() {
   // hre.ethers.provider.pollingInterval = 1
-  console.log('DEPLOYING SUGAR INTO PRODUCTION')
+  console.log('DEPLOYING INTO PRODUCTION')
   console.log('')
 
   // Setup.
@@ -128,24 +132,79 @@ async function main() {
   let addressResolver = {
     address: owner
   }
-  const glucoseFeed = await deployContract({
-    contract: "GlucoseFeed",
+
+  // Deploy and upgrade all contracts.
+  const Universe = await deployContract({
+    contract: "Universe",
     params: [owner, addressResolver.address],
   });
 
-  const daobetic = await deployContract({
-    contract: "Daobetic",
-    params: [owner, addressResolver.address],
-    force: true
-  });
+  let items = [
+    "Wood",
+    "Sand",
+    "Bullets"
+  ]
 
+  for(let itemName of items) {
+    const item = await deployContract({
+      contract: "BaseItem",
+      params: [owner, addressResolver.address],
+      name: `Item${itemName}`
+    })
+
+    await waitTx(
+      Universe.allow(item.address)
+    )
+  }
+
+  const Fabricator = await deployContract({
+    contract: "Fabricator",
+    params: [owner, addressResolver.address]
+  })
+
+  const blueprint1 = await deployContract({
+    contract: "Blueprint",
+    name: "Blueprint1",
+    params: [owner, addressResolver.address],
+  })
+
+  const ITEM_TYPES = {
+    ERC20: 0,
+    ERC721: 1,
+    ERC1155: 2,
+  }
   await waitTx(
-    daobetic.setFeed(glucoseFeed.address)
+    blueprint1.initialize(
+      [
+        getAddresss("Wood"),
+        getAddresss("Sand")
+      ],
+      [
+        ITEM_TYPES.ERC1155,
+        ITEM_TYPES.ERC1155
+      ],
+      [
+        '0',
+        '0'
+      ],
+      [
+        '25',
+        '10'
+      ]
+    )
   )
 
-  // await waitTx(
-  //   glucoseFeed.post(70, Math.floor(Date.now() / 1000))
-  // )
+  await waitTx(
+    Universe.allow(blueprint1.address)
+  )
+
+  await waitTx(
+    await Fabricator.make(blueprint1.address)
+  )
+
+
+
+
 
   // Import addresses.
   // -----------------

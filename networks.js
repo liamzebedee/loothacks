@@ -18,5 +18,10 @@ module.exports = {
       blockGasLimit: 9e6,
       url: 'https://sugardao.vercel.app/api/ovm-testnet',
       accounts: [process.env.OVM_TESTNET_PRIVATE_KEY]
+    },
+    'polygon-mumbai': {
+      url: 'https://polygon-rpc.com',
+      accounts: [process.env.PRIVATE_KEY],
+      url: process.env.PROVIDER_URL_POLYGON_MUMBAI
     }
 }
