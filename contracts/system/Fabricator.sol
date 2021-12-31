@@ -7,7 +7,8 @@ import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 
 import "../mixins/MixinResolver.sol";
 import "../mixins/Owned.sol";
-import "./Blueprint.sol";
+import "../libraries/Utils.sol";
+import "./blueprints/Blueprint.sol";
 import "./Universe.sol";
 
 error Illegal();
@@ -18,7 +19,7 @@ contract Fabricator is Owned, MixinResolver {
 
     // Makes an object according to a blueprint, transferring inputs to the 
     // owner of the fabricator.
-    function make(Blueprint blueprint) public {
+    function make(Blueprint blueprint, uint256[9] calldata ids, uint256[9] calldata amounts) public {
         Universe universe = Universe(requireAndGetAddress("Universe"));
         if (!universe.allowed(address(blueprint)))
             revert Illegal();
@@ -39,6 +40,7 @@ contract Fabricator is Owned, MixinResolver {
             }
         }
 
-        
+        (address item, uint256 id, uint256 amount) = blueprint.getOutputForInputs();
+        blueprint.mint(msg.sender, item, id, amount);
     }
 }

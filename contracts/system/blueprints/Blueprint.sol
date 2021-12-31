@@ -1,14 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.9;
 
-import "../mixins/MixinResolver.sol";
-import "../mixins/Owned.sol";
-
-enum TokenType {
-    ERC20,
-    ERC721,
-    ERC1155
-}
+import "../../mixins/MixinResolver.sol";
+import "../../mixins/Owned.sol";
+import "../../libraries/Utils.sol";
 
 // A blueprint is a simple schematic for creating new items from material inputs.
 // It consists of a list of inputs and a single output.
@@ -29,6 +24,7 @@ contract Blueprint is Owned, MixinResolver {
 
     // The list of inputs required to fabricate this item.
     Input[9] public inputs;
+    Output public output;
 
     constructor(
         address _owner, 
@@ -39,7 +35,10 @@ contract Blueprint is Owned, MixinResolver {
         address[9] calldata inputsItems,
         TokenType[9] calldata inputsTokenType,
         uint256[9] calldata inputsIds,
-        uint256[9] calldata inputsAmounts
+        uint256[9] calldata inputsAmounts,
+        address outputItem,
+        uint256 outputId,
+        uint256 outputAmount
     ) public {
         for(uint i = 0; i < inputsItems.length; i++) {
             if(inputsItems[i] == address(0)) continue;
@@ -51,13 +50,13 @@ contract Blueprint is Owned, MixinResolver {
                 amount: inputsAmounts[i]
             });
         }
+
+        output.item = outputItem;
+        output.id = outputId;
+        output.amount = outputAmount;
     }
 
     function numInputs() public pure returns (uint) {
         return 9;
-    }
-
-    function getOutput() public view returns (Output output) {
-        // This can be probabilistic. It can be simple.
     }
 }

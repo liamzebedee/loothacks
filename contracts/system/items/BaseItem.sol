@@ -2,8 +2,8 @@
 pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
-import "../mixins/MixinResolver.sol";
-import "../mixins/Owned.sol";
+import "../../mixins/MixinResolver.sol";
+import "../../mixins/Owned.sol";
 
 contract BaseItem is Owned, MixinResolver, ERC1155 {
     constructor(address _owner, address _resolver) Owned(_owner) MixinResolver(_resolver) ERC1155("https://game.example/api/item/{id}.json") {

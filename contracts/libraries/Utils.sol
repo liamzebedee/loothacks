@@ -1,6 +1,17 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.9;
 
+enum TokenType {
+    // See: https://eips.ethereum.org/EIPS/eip-20
+    ERC20,
+
+    // See: https://eips.ethereum.org/EIPS/eip-721
+    ERC721,
+    
+    // See: https://eips.ethereum.org/EIPS/eip-1155
+    ERC1155
+}
+
 library Utils {
     function random(string memory input) internal pure returns (uint256) {
         return uint256(keccak256(abi.encodePacked(input)));
